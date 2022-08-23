@@ -1,5 +1,5 @@
-//modified by:
-//date:
+//modified by: Jarl Ramos
+//date: 23 August 2022
 //
 //author: Gordon Griesel
 //date: Spring 2022
