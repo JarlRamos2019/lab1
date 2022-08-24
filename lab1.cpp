@@ -49,11 +49,10 @@ public:
 } x11;
 
 //Function prototypes
+
 void init_opengl(void);
 void physics(void);
-void render(void);
-
-
+void render(int xResPrev, GLubyte & red, GLubyte & green, GLubyte & blue);
 
 //=====================================
 // MAIN FUNCTION IS HERE
@@ -61,8 +60,12 @@ void render(void);
 int main()
 {
 	init_opengl();
+    GLubyte redVal   = 150;
+    GLubyte greenVal = 160;
+    GLubyte blueVal  = 220;
 	//Main loop
 	int done = 0;
+    int prevXRes = xres;
 	while (!done) {
 		//Process external events.
 		while (x11.getXPending()) {
@@ -72,7 +75,8 @@ int main()
 			done = x11.check_keys(&e);
 		}
 		physics();
-		render();
+		render(prevXRes, redVal, greenVal, blueVal);
+        prevXRes = xres;
 		x11.swapBuffers();
 		usleep(200);
 	}
@@ -249,7 +253,6 @@ void init_opengl(void)
 
 void physics()
 {
-
 	g.pos[0] += g.dir;
 	if (g.pos[0] >= (g.xres-g.w)) {
 		g.pos[0] = (g.xres-g.w);
@@ -261,31 +264,36 @@ void physics()
 	}
 }
 
-void render()
+void render(int xResPrev, GLubyte & red, GLubyte & green, GLubyte & blue)
 {
-	static float w = 20.0f;
+    static float w = 20.0f;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//Draw box.
-	glPushMatrix();
-	glColor3ub(150, 160, 220);
-	glTranslatef(g.pos[0], g.pos[1], 0.0f);
-	glBegin(GL_QUADS);
-		glVertex2f(-g.w, -g.w);
-		glVertex2f(-g.w,  g.w);
-		glVertex2f( g.w,  g.w);
-		glVertex2f( g.w, -g.w);
-	glEnd();
-	glPopMatrix();
-	g.pos[0] += g.dir;
-	if (g.pos[0] >= (g.xres-g.w)) {
-		g.pos[0] = (g.xres-g.w);
-		g.dir = -g.dir;
-	}
-	if (g.pos[0] <= w) {
-		g.pos[0] = g.w;
-		g.dir = -g.dir;
-	}
+    while (xres >= w) {
+        glPushMatrix();
+        glColor3ub(red, green, blue);
+        // glColor3ub(150, 160, 220);
+        glTranslatef(g.pos[0], g.pos[1], 0.0f);
+        glBegin(GL_QUADS);
+            glVertex2f(-g.w, -g.w);
+            glVertex2f(-g.w,  g.w);
+            glVertex2f( g.w,  g.w);
+            glVertex2f( g.w, -g.w);
+        glEnd();
+        glPopMatrix();
+    }
+	
+    if (xResPrev < xres) {
+        ++blue;
+        --red;
+    }
+    
+    if (xResPrev > xres) {
+        ++red;
+        --blue;
+    }
 }
+
 
 
 
