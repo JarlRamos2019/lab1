@@ -78,6 +78,9 @@ int main()
 			done = x11.check_keys(&e);
 		}
 		physics();
+	//	cout << "Debug: Red is " << (int)redVal << endl;
+	//	cout << "Debug: Green is " << (int)greenVal << endl;
+	//	cout << "Debug: Blue is " << (int)blueVal << endl;
         //render() passes the references of the color values and takes in
         //the previous resolution for comparison with the current one.
 		render(prevXRes, redVal, greenVal, blueVal);
@@ -279,11 +282,11 @@ void physics()
 
 void render(int xResPrev, GLubyte & red, GLubyte & green, GLubyte & blue)
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-    //If the resolution at the y-axis is smaller than the box width,
+    glClear(GL_COLOR_BUFFER_BIT);
+    //If the resolution at the x- and y-axis is smaller than the box width,
     //the function will automatically end and the box will not render, making
-    //it "disappear".
-    if (g.yres < g.w) {
+    //it disappear.
+    if (g.xres < 2 * g.w || g.yres < 2 * g.w) {
         return;
     }
 	//Draw box.
@@ -302,13 +305,15 @@ void render(int xResPrev, GLubyte & red, GLubyte & green, GLubyte & blue)
     //The box gets slower as the resolution increases; if the current resolution
     //is higher than the previous one, it will turn bluer.
     if (xResPrev < g.xres) {
-        ++blue;
-        --red;
+	blue += 10;
+	red  -= 10;
+	green = 0;
     }
     //The box gets faster as the resolution decreases; if the current resolution
     //is lower than the previous one, it will turn redder.
     if (xResPrev > g.xres) {
-        ++red;
-        --blue;
+	red += 10;
+	blue -= 10;
+	green = 0;
     }
 }
