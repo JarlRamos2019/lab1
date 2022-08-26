@@ -21,7 +21,7 @@ using namespace std;
 //some structures
 
 class Global {
-public:
+    public:
 	int xres, yres;
 	float w;
 	float dir;
@@ -60,12 +60,15 @@ void render(int xResPrev, GLubyte & red, GLubyte & green, GLubyte & blue);
 int main()
 {
 	init_opengl();
+    
+    //Set initial colors of the box.
     GLubyte redVal   = 150;
     GLubyte greenVal = 160;
     GLubyte blueVal  = 220;
 	//Main loop
 	int done = 0;
-    int prevXRes = xres;
+    //Set previous resolution to current one before starting loop.
+    int prevXRes = g.xres;
 	while (!done) {
 		//Process external events.
 		while (x11.getXPending()) {
@@ -75,8 +78,12 @@ int main()
 			done = x11.check_keys(&e);
 		}
 		physics();
+        //render() passes the references of the color values and takes in
+        //the previous resolution for comparison with the current one.
 		render(prevXRes, redVal, greenVal, blueVal);
-        prevXRes = xres;
+        //The previous resolution is always set to the current one each time
+        //the loop runs.
+        prevXRes = g.xres;
 		x11.swapBuffers();
 		usleep(200);
 	}
@@ -253,50 +260,55 @@ void init_opengl(void)
 
 void physics()
 {
+    //Following function controls the box's motion.
+    //Increments g.dir to the position every time this function is called.
 	g.pos[0] += g.dir;
+    //If the box reaches the rightmost boundary of the window
 	if (g.pos[0] >= (g.xres-g.w)) {
 		g.pos[0] = (g.xres-g.w);
+        //Direction is reversed
 		g.dir = -g.dir;
 	}
+    //If the box reaches the leftmost boundary of the window
 	if (g.pos[0] <= g.w) {
 		g.pos[0] = g.w;
+        //Direction is reversed
 		g.dir = -g.dir;
 	}
 }
 
 void render(int xResPrev, GLubyte & red, GLubyte & green, GLubyte & blue)
 {
-    static float w = 20.0f;
 	glClear(GL_COLOR_BUFFER_BIT);
-	//Draw box.
-    while (xres >= w) {
-        glPushMatrix();
-        glColor3ub(red, green, blue);
-        // glColor3ub(150, 160, 220);
-        glTranslatef(g.pos[0], g.pos[1], 0.0f);
-        glBegin(GL_QUADS);
-            glVertex2f(-g.w, -g.w);
-            glVertex2f(-g.w,  g.w);
-            glVertex2f( g.w,  g.w);
-            glVertex2f( g.w, -g.w);
-        glEnd();
-        glPopMatrix();
+    //If the resolution at the y-axis is smaller than the box width,
+    //the function will automatically end and the box will not render, making
+    //it "disappear".
+    if (g.yres < g.w) {
+        return;
     }
-	
-    if (xResPrev < xres) {
+	//Draw box.
+    glPushMatrix();
+    //The first time render() is called, the initial values for color declared
+    //in main() will be passed as parameters of glColor3ub().
+    glColor3ub(red, green, blue);
+    glTranslatef(g.pos[0], g.pos[1], 0.0f);
+    glBegin(GL_QUADS);
+        glVertex2f(-g.w, -g.w);
+        glVertex2f(-g.w,  g.w);
+        glVertex2f( g.w,  g.w);
+        glVertex2f( g.w, -g.w);
+    glEnd();
+    glPopMatrix();
+    //The box gets slower as the resolution increases; if the current resolution
+    //is higher than the previous one, it will turn bluer.
+    if (xResPrev < g.xres) {
         ++blue;
         --red;
     }
-    
-    if (xResPrev > xres) {
+    //The box gets faster as the resolution decreases; if the current resolution
+    //is lower than the previous one, it will turn redder.
+    if (xResPrev > g.xres) {
         ++red;
         --blue;
     }
 }
-
-
-
-
-
-
-
