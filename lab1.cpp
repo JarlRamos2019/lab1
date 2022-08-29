@@ -301,8 +301,8 @@ void render(int xResPrev, GLfloat & red, GLfloat & green, GLfloat & blue)
     //The box gets slower as the resolution increases; if the current resolution
     //is higher than the previous one, it will turn bluer.
     if (xResPrev < g.xres) {
-        blue += 0.01f;
-        red  -= 0.01f;
+        blue += 0.1f;
+        red  -= 0.1f;
         //Both colors are restricted to the range of 0.0f-1.0f.
         if (red < 0.0f) {
             red = 0.0f;
@@ -314,8 +314,8 @@ void render(int xResPrev, GLfloat & red, GLfloat & green, GLfloat & blue)
     //The box gets faster as the resolution decreases; if the current resolution
     //is lower than the previous one, it will turn redder.
     if (xResPrev > g.xres) {
-        red  += 0.01f;
-        blue -= 0.01f;
+        red  += 0.1f;
+        blue -= 0.1f;
         //Both colors are restricted to the range of 0.0f-1.0f.
         if (red > 1.0f) {
             red = 1.0f;
