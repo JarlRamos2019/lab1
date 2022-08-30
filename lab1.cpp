@@ -51,7 +51,7 @@ public:
 
 void init_opengl(void);
 void physics(void);
-void render(int xResPrev, GLfloat & red, GLfloat & green, GLfloat & blue);
+void render(int xResPrev, GLfloat & red, GLfloat & green, GLfloat & blue, GLfloat & pRed);
 
 //=====================================
 // MAIN FUNCTION IS HERE
@@ -64,6 +64,8 @@ int main()
     GLfloat redVal   = 0.3f;
     GLfloat greenVal = 0.2f;
     GLfloat blueVal  = 0.8f;
+    //Needed to reset the red value after box touches the window edge.
+    GLfloat prevRed;
     //Main loop
     int done = 0;
     //Set previous resolution to current one before starting loop.
@@ -79,7 +81,7 @@ int main()
         physics();
         //render() passes the references of the color values and takes in
         //the previous resolution for comparison with the current one.
-        render(prevXRes, redVal, greenVal, blueVal);
+        render(prevXRes, redVal, greenVal, blueVal, prevRed);
         //The previous resolution is always set to the current one each time
         //the loop runs.
         prevXRes = g.xres;
@@ -276,8 +278,13 @@ void physics()
     }
 }
 
-void render(int xResPrev, GLfloat & red, GLfloat & green, GLfloat & blue)
+void render(int xResPrev, GLfloat & red, GLfloat & green, GLfloat & blue, GLfloat & pRed)
 {
+    //This will reset itself to the original red value everytime the
+    //function runs.
+    if (g.pos[0] == (g.xres / 2)) {
+        pRed = red;
+    }
     glClear(GL_COLOR_BUFFER_BIT);
     //If the resolution at the x- and y-axis is smaller than the box width,
     //the function will automatically end and the box will not render, making
@@ -323,5 +330,15 @@ void render(int xResPrev, GLfloat & red, GLfloat & green, GLfloat & blue)
         if (blue < 0.0f) {
             blue = 0.0f;
         }
+    }
+    //This will make the box redder if it touches the window edge.
+    if ((g.pos[0] + g.w) == g.xres) {
+        red = 1.0f;
+    }
+    if ((g.pos[0] - g.w) == 0) {
+        red = 1.0f;
+    }
+    if (((g.pos[0] + g.w) < (g.xres - 30)) && ((g.pos[0] - g.w) > 30)) {
+        red = pRed;
     }
 }
